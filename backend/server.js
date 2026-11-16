@@ -3,7 +3,8 @@ const express = require('express');
 const pinoHttp = require('pino-http');
 const logger = require('./logger');
 const pool = require('./db');
-const authRoutes = require('./routes/authRoutes'); // <-- Added here
+const authRoutes = require('./routes/authRoutes');
+const noteRoutes = require('./routes/noteRoutes'); // <-- Added here
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,8 +28,9 @@ app.get('/db-test', async (req, res, next) => {
   }
 });
 
-// Auth Routes
-app.use('/api/auth', authRoutes); // <-- Added here
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/notes', noteRoutes); // <-- Added here
 
 // Deliberately throws — proves the error handler catches it
 app.get('/test-error', (req, res) => {
