@@ -4,7 +4,7 @@ const pinoHttp = require('pino-http');
 const logger = require('./logger');
 const pool = require('./db');
 const authRoutes = require('./routes/authRoutes');
-const noteRoutes = require('./routes/noteRoutes'); // <-- Added here
+const noteRoutes = require('./routes/noteRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,7 +30,7 @@ app.get('/db-test', async (req, res, next) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/notes', noteRoutes); // <-- Added here
+app.use('/api/notes', noteRoutes);
 
 // Deliberately throws — proves the error handler catches it
 app.get('/test-error', (req, res) => {
@@ -46,6 +46,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+// Only listen if this file is run directly, export the app for tests
+if (require.main === module) {
+  app.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
