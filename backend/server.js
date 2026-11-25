@@ -3,6 +3,7 @@ const express = require('express');
 const pinoHttp = require('pino-http');
 const logger = require('./logger');
 const pool = require('./db');
+const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 
@@ -11,7 +12,10 @@ const PORT = process.env.PORT || 3001;
 
 app.use(pinoHttp({ logger }));
 app.use(express.json());
-
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow your React app
+  credentials: true
+}));
 // --- Routes ---
 app.get('/health', (req, res) => {
   req.log.info('Health check hit');
