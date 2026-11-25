@@ -16,6 +16,7 @@ app.use(cors({
   origin: 'http://localhost:5173', // Allow your React app
   credentials: true
 }));
+
 // --- Routes ---
 app.get('/health', (req, res) => {
   req.log.info('Health check hit');
@@ -52,6 +53,12 @@ app.use((err, req, res, next) => {
 
 // Only listen if this file is run directly, export the app for tests
 if (require.main === module) {
+  // Fixed: Check for JWT secret before starting
+  if (!process.env.JWT_SECRET) {
+    logger.error('FATAL ERROR: JWT_SECRET is not defined in .env');
+    process.exit(1);
+  }
+
   app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
   });

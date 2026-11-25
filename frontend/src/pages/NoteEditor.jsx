@@ -15,6 +15,7 @@ export default function NoteEditor() {
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(isEditing);
+  const [saving, setSaving] = useState(false); // Fixed: Prevent spam saving
 
   // If editing, fetch the existing note
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function NoteEditor() {
           setTitle(res.data.data.title);
           setContent(res.data.data.content || '');
         } catch (err) {
-          setError('Failed to load note');
+          setError('Failed to load note. You cannot edit this note right now.'); // Fixed: Prevent editing on failure
         } finally {
           setLoading(false);
         }
@@ -35,10 +36,15 @@ export default function NoteEditor() {
   }, [id, isEditing]);
 
   const handleSave = async () => {
+    if (saving || error) return; // Fixed: Block save if already saving or load failed
+    
     if (!title.trim()) {
       setError('Title is required');
       return;
     }
+
+    setSaving(true); // Start saving
+    setError('');
 
     try {
       if (isEditing) {
@@ -49,6 +55,8 @@ export default function NoteEditor() {
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to save note');
+    } finally {
+      setSaving(false); // Stop saving
     }
   };
 
@@ -60,8 +68,8 @@ export default function NoteEditor() {
         <button onClick={() => navigate('/dashboard')} className="btn btn-secondary">
           <ArrowLeft size={16} /> Back
         </button>
-        <button onClick={handleSave} className="btn btn-primary">
-          <Save size={16} /> Save Note
+        <button onClick={handleSave} className="btn btn-primary" disabled={saving || !!error}>
+          <Save size={16} /> {saving ? 'Saving...' : 'Save Note'}
         </button>
       </div>
 
@@ -73,6 +81,7 @@ export default function NoteEditor() {
         placeholder="Note Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        disabled={!!error}
         style={{ fontSize: '24px', fontWeight: '600', marginBottom: '16px', padding: '12px' }}
       />
 
@@ -81,6 +90,7 @@ export default function NoteEditor() {
           theme="snow"
           value={content}
           onChange={setContent}
+          readOnly={!!error}
           style={{ height: '400px', marginBottom: '40px' }}
         />
       </div>
