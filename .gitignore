@@ -1,0 +1,11 @@
+node_modules/
+.env
+dist/
+build/
+.DS_Store
+*.log
+
+# SonarQube
+.scannerwork/
+hs_err_pid*.log
+replay_pid*.log
